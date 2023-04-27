@@ -44,8 +44,6 @@ def getFacultyPublications(input_value):
     for doc in query:
         row_dict = {'title': doc['title'], 'venue': doc['venue'], 'year': doc['year'], 'numCitations': doc['numCitations']}
         data.append(row_dict)
-        
-    print(data)
 
     for x in query:
         for key in x.keys():
@@ -53,8 +51,5 @@ def getFacultyPublications(input_value):
                 publication_dict[key] = "N/A"
             else:
                 publication_dict[key] = x[key]
-
-    print(publication_dict)   
+                  
     return data
-
-# "Adalbert Gerald Soosai Raj"

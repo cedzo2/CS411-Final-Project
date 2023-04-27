@@ -115,7 +115,6 @@ def get_info(input_value):
 input3 = dcc.Input( id='input3', placeholder="Add a keyword")
 submit2 = html.Button('submit', id="submit2", n_clicks=0)
 graph1_layout = {
-    # 'title': 'Top Universities By Keyword',
     'xaxis': {'title': 'University'},
     'yaxis': {'title': 'Keyword Score'},
 }
@@ -228,7 +227,6 @@ def addPubData(input_value):
 #--------------------------------
 universityDropdown = dcc.Dropdown(get_universities(), placeholder="Select a University", id="universityDropdown")
 graph6_layout = {
-    # 'title': 'Top Universities By Keyword',
     'xaxis': {'title': 'Keyword'},
     'yaxis': {'title': 'Faculty Count'},
 }
@@ -244,7 +242,6 @@ graph6 = dcc.Graph(
     Input("universityDropdown", "value"),
 )
 def addUniversity(input_value):
-    print(input_value)
     if not input_value:
         return dash.no_update
     result = getFacultyCount(input_value)
