@@ -1,4 +1,5 @@
 import pymongo
+import pandas as pd
 
 conn=pymongo.MongoClient()
 db = conn.academicworld
@@ -26,5 +27,34 @@ def get_universities():
 def get_faculty(input_value):
     query = db.faculty.distinct("name", {"affiliation.name": input_value})
     return query
+
+def get_faculty_all():
+    query = db.faculty.distinct("name")
+    return query
+
+def getFacultyPublications(input_value):
+    query = db.faculty.aggregate([{"$match": {"name": input_value}},
+        {"$unwind": "$publications"},
+        {"$lookup": {"from": "publications","localField": "publications","foreignField": "id","as": "pubJoin"}},
+        {"$unwind": "$pubJoin"},
+        {"$project": {"_id": 0,"title": "$pubJoin.title","venue": "$pubJoin.venue","year": "$pubJoin.year","numCitations": "$pubJoin.numCitations"}}
+    ])
+    publication_dict = {}
+    data = []
+    for doc in query:
+        row_dict = {'title': doc['title'], 'venue': doc['venue'], 'year': doc['year'], 'numCitations': doc['numCitations']}
+        data.append(row_dict)
+        
+    print(data)
+
+    for x in query:
+        for key in x.keys():
+            if x[key] is None:
+                publication_dict[key] = "N/A"
+            else:
+                publication_dict[key] = x[key]
+
+    print(publication_dict)   
+    return data
 
 # "Adalbert Gerald Soosai Raj"
