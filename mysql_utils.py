@@ -2,7 +2,7 @@ import pymysql
 
 db = pymysql.connect(host='localhost',
                 user='root',
-                password='root_password',
+                password='Qpalzm1029!',
                 database='academicworld',
                 charset='utf8mb4',
                 port=3306,
@@ -42,3 +42,16 @@ def sql_select():
 # "data mining"
 # "computer science"
 # "computer graphics"
+
+def getFacultyTable(facultyName):
+    with db.cursor() as cursor:
+        sql = 'SELECT * from faculty WHERE name = "' + facultyName + '" LIMIT 1;'
+        cursor.execute(sql)
+        facultyTable = cursor.fetchall()
+        return facultyTable
+    
+def updateFacultyTable(facultyName, columnName, inputValue):
+    with db.cursor() as cursor:
+        sql = 'UPDATE faculty SET ' + columnName + ' = "' + inputValue + '" WHERE name = "' + facultyName + '";'
+        cursor.execute(sql)
+        db.commit()
