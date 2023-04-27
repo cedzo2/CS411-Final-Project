@@ -1,6 +1,6 @@
 from neo4j import GraphDatabase
 
-driver = GraphDatabase.driver("neo4j://localhost:7687", auth=("neo4j", "neo4j"))
+driver = GraphDatabase.driver("neo4j://localhost:7687", auth=("neo4j", "Qpalzm1029!"))
 session = driver.session(database="academicworld") 
 
 def execute_get_scores(tx, keyword, university_score):
@@ -15,3 +15,15 @@ def get_scores(input_value):
     return university_score
 
 # "computer science"
+
+def executeGetFacultyCount(query, university, faculty_count):
+    results = query.run('MATCH (i1:INSTITUTE where i1.name = $university)-[:AFFILIATION_WITH]-(f:FACULTY)-[:INTERESTED_IN]->(k:KEYWORD) WITH k, count(DISTINCT f) AS faculty_count RETURN k.name AS keyword, faculty_count ORDER BY faculty_count DESC LIMIT 5', university=university)
+    #results = tx.run('MATCH (i1:INSTITUTE) where i1.name = $university MATCH (i1)-[:AFFILIATION_WITH]-(f:FACULTY)-[:INTERESTED_IN]->(k:KEYWORD) WITH k, count(DISTINCT f) AS faculty_count RETURN k.name AS keyword, faculty_count ORDER BY faculty_count DESC LIMIT 5', university=university)
+    for record in results:
+        faculty_count[record['keyword']] = record['faculty_count']
+    return faculty_count
+
+def getFacultyCount(input_value):
+    faculty_count = {}
+    session.execute_write(executeGetFacultyCount, input_value, faculty_count)
+    return faculty_count
