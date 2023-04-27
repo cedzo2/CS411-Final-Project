@@ -3,21 +3,11 @@ import dash
 from dash import Dash, html, dcc, callback, Output, Input, dash_table, State
 import dash_bootstrap_components as dbc
 
-from mysql_utils import sql_insert, sql_delete, sql_select
-from mongodb_utils import get_faculty_info, get_universities, get_faculty
-from neo4j_utils import get_scores
+from mysql_utils import sql_insert, sql_delete, sql_select, getFacultyTable, updateFacultyTable
+from mongodb_utils import get_faculty_info, get_universities, get_faculty, get_faculty_all, getFacultyPublications
+from neo4j_utils import get_scores, getFacultyCount
 
 external_stylesheets = ['styles.css']
-
-# Sample data for the charts
-x = [1, 2, 3]
-y1 = [4, 5, 6]
-y2 = [7, 8, 9]
-y3 = [10, 11, 12]
-y4 = [13, 14, 15]
-y5 = [16, 17, 18]
-
-# Define the charts
 
 # Figure 1
 #--------------------------------
@@ -155,33 +145,115 @@ def add_keyword_neo(input_value, n_clicks):
 
 # Figure 4
 #--------------------------------
-chart4 = dcc.Graph(
-    id='chart4',
-    figure={
-        'data': [go.Scatter(x=x, y=y4, mode='lines')],
-        'layout': go.Layout(title='Chart 4')
+facultyDropdown2 = dcc.Dropdown(get_faculty_all(), placeholder="Select a Faculty Member", id="facultyDropdown2")
+submitFaculty = html.Button('Submit', id='submitFaculty', n_clicks=0)
+facultyLine = dash_table.DataTable(
+    columns=[{"name": "Name", "id": "name"}, 
+             {"name": "Position", "id": "position"}, 
+             {"name": "Research Interest", "id": "research_interest"},
+             {"name": "Email", "id": "email"},
+             {"name": "Phone", "id": "phone"},
+             {"name": "Photo URL", "id": "photo_url"}],
+    id="facultyLine",
+    style_table={'overflowX': 'auto'},
+    style_cell={
+        'whiteSpace': 'normal',
+        'height': 'auto'
     }
 )
+
+@callback(
+    Output("facultyLine", "data", allow_duplicate=True),
+    Input("facultyDropdown2", "value"),
+    prevent_initial_call=True
+)
+
+def displayFacultyLine(facultyDropdown2):
+    if not facultyDropdown2:
+        return dash.no_update
+    facultyData = getFacultyTable(facultyDropdown2)
+    return facultyData
+
+facultyColumns = dcc.Dropdown(["position", "research_interest", "email", "phone", "photo_url"], placeholder="Select Attribute", id="facultyColumns")
+changeInput = dcc.Input(id='changeInput', placeholder="Enter Edit")
+
+@callback(
+    Output("facultyLine", "data", allow_duplicate=True),
+    State("facultyDropdown2", "value"),
+    State("facultyColumns", "value"),
+    State("changeInput", "value"),
+    Input("submitFaculty" ,"n_clicks"),
+    prevent_initial_call=True
+)
+
+def updateFaculty(facultyDropdown2, facultyColumns, changeInput, n_clicks):
+    if not facultyColumns or not changeInput or not facultyDropdown2:
+        return dash.no_update
+    updateFacultyTable(facultyDropdown2, facultyColumns, changeInput)
+    facultyData = getFacultyTable(facultyDropdown2)
+    return facultyData
+
+
 
 # Figure 5
 #--------------------------------
-chart5 = dcc.Graph(
-    id='chart5',
-    figure={
-        'data': [go.Scatter(x=x, y=y5, mode='lines')],
-        'layout': go.Layout(title='Chart 5')
+facultyDropdown = dcc.Dropdown(get_faculty_all(), placeholder="Select a Faculty Member", id="facultyDropdown")
+pubTable = dash_table.DataTable(
+    columns=[{"name": "Title", "id": "title"}, 
+             {"name": "Venue", "id": "venue"}, 
+             {"name": "Year", "id": "year"},
+             {"name": "number of Citations", "id": "numCitations"}],
+    id="pubTable",
+    style_table={'overflowX': 'auto', 'overflowY': 'scroll', 'height': '500px'},
+    style_cell={
+        'whiteSpace': 'normal',
+        'height': 'auto'
     }
 )
 
+@callback(
+    Output("pubTable", "data", allow_duplicate=True),
+    Input("facultyDropdown", "value"),
+    prevent_initial_call=True
+)
+
+def addPubData(input_value):
+    if not input_value:
+        return dash.no_update
+    pubData = getFacultyPublications(input_value)
+    return pubData
+
+
 # Figure 6
 #--------------------------------
-chart6 = dcc.Graph(
-    id='chart6',
+universityDropdown = dcc.Dropdown(get_universities(), placeholder="Select a University", id="universityDropdown")
+graph6_layout = {
+    # 'title': 'Top Universities By Keyword',
+    'xaxis': {'title': 'Keyword'},
+    'yaxis': {'title': 'Faculty Count'},
+}
+graph6 = dcc.Graph(
+    id="graph6",
     figure={
-        'data': [go.Scatter(x=x, y=y1, mode='lines')],
-        'layout': go.Layout(title='Chart 6')
+        'data': [],
+        'layout': graph6_layout
     }
 )
+@callback(
+    Output("graph6", "figure"),
+    Input("universityDropdown", "value"),
+)
+def addUniversity(input_value):
+    print(input_value)
+    if not input_value:
+        return dash.no_update
+    result = getFacultyCount(input_value)
+    x = list(result.keys())
+    y = list(result.values())
+    return {
+        'data': [{'x': x, 'y': y, 'type': 'bar', 'marker': {'color': 'red'}}],
+        'layout': graph6_layout,
+    }
 
 # Define the layout
 app = Dash(__name__, external_stylesheets=external_stylesheets)
@@ -225,19 +297,37 @@ app.layout = html.Div([
     ], className="row"),
     html.Div([
         html.Div([
+            html.H1("Edit Faculty Information", style={"text-align":"center"}),
             html.Div([
-                chart4
+                facultyDropdown2
+            ], className="figurecomponents"),
+            html.Div([
+                facultyLine
+            ], className="figurecomponents"),
+            html.Div([
+                facultyColumns
+            ], className="figurecomponents"),
+            html.Div([
+                changeInput, submitFaculty
             ], className="figurecomponents"),
         ], className="figure"),
         html.Div([
+            html.H1("Search Publications by Faculty", style={"text-align":"center"}),
             html.Div([
-                chart5
+                facultyDropdown
             ], className="figurecomponents"),
+            html.Div([
+                pubTable
+            ], className="figurecomponents")
         ], className="figure"),
         html.Div([
+            html.H1("Top Keywords by University", style={"text-align":"center"}),
             html.Div([
-                chart6
+                universityDropdown
             ], className="figurecomponents"),
+            html.Div([
+                graph6
+            ], className="figurecomponents")
         ], className="figure")
     ], className="row")
 ])
