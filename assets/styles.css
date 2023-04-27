@@ -1,8 +1,19 @@
-#input1, #input2, #input3 {
+#input1, #input2, #input3, #changeInput {
   padding: 10px
 }
 
+#graph6 {
+  color: red;
+}
+
 #submit1 {
+  padding: 10px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+}
+
+#submitFaculty {
   padding: 10px;
   background-color: #4CAF50;
   color: white;
