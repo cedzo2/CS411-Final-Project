@@ -33,7 +33,7 @@ def sql_select():
 
 def getFacultyTable(facultyName):
     with db.cursor() as cursor:
-        sql = 'CALL getFacultyTable_procedure("' + facultyName + '");'
+        sql = 'SELECT * from faculty_edit_view WHERE name = "' + facultyName + '" LIMIT 1;'
         cursor.execute(sql)
         facultyTable = cursor.fetchall()
         return facultyTable
