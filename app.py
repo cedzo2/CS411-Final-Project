@@ -1,4 +1,3 @@
-import plotly.graph_objs as go
 import dash
 from dash import Dash, html, dcc, callback, Output, Input, dash_table, State
 import dash_bootstrap_components as dbc
@@ -283,7 +282,7 @@ app.layout = html.Div([
             ], className="figurecomponents")
         ], className="figure"),
         html.Div([
-            html.H1("Top Universities By Keyword", style={"text-align":"center"}),
+            html.H1("Top Universities by Keyword", style={"text-align":"center"}),
             html.Div([
                 input3, submit2
             ], className="figurecomponents"),
