@@ -254,6 +254,7 @@ def addUniversity(input_value):
 # Define the layout
 app = Dash(__name__, external_stylesheets=external_stylesheets)
 app.layout = html.Div([
+    html.H1("Faculty and Keyword Explorer", style={"text-align":"center"}),
     html.Div([
         html.Div([
             html.Div([
