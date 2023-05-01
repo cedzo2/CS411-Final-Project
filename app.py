@@ -78,7 +78,7 @@ row2 = html.Tr([html.Td("Position:"), html.Td(id="row2")])
 row3 = html.Tr([html.Td("Email:"), html.Td(id="row3")])
 row4 = html.Tr([html.Td("Phone:"), html.Td(id="row4")])
 row5 = html.Tr([html.Td("Research:"), html.Td(id="row5")])
-row6 = html.Tr([html.Td("Publications"), html.Td(id="row6")])
+row6 = html.Tr([html.Td("Publications:"), html.Td(id="row6")])
 row7 = html.Tr([html.Td("University:"), html.Td(id="row7")])
 table_body1 = [html.Tbody([row1, row2, row3, row4, row5, row6, row7])]
 table4 = dbc.Table(table_body1)
